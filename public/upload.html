@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <title>Upload Images</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+
+    .upload-form {
+      max-width: 400px;
+      margin: auto;
+    }
+
+    .upload-form input {
+      margin-bottom: 10px;
+    }
+
+    #uploadResult {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/">Your Logo</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/upload">Upload <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="upload-form">
+      <h2 class="text-center mb-4 mt-4">Upload Image</h2>
+      <form id="uploadForm" enctype="multipart/form-data" action="/upload" method="post">
+        <div class="form-group">
+          <label for="fileInput">Choose File</label>
+          <input type="file" class="form-control-file" name="file" id="fileInput" accept=".jpg, .jpeg, .png" required multiple>
+        </div>
+        <div class="form-group">
+          <label for="secretKeyInput">Secret Key</label>
+          <input type="password" class="form-control" name="secretKey" id="secretKeyInput" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+      </form>
+      <div id="uploadResult"></div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const fileInput = document.getElementById('fileInput');
+      const secretKeyInput = document.getElementById('secretKeyInput');
+      const uploadResult = document.getElementById('uploadResult');
+
+      const formData = new FormData();
+      for (const file of fileInput.files) {
+        formData.append('file', file);
+      }
+
+      formData.append('secretKey', secretKeyInput.value);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await response.json();
+
+        // Display the result message
+        if (data.success) {
+          uploadResult.innerHTML = `<div class="alert alert-success" role="alert">${data.message}</div>`;
+          
+          // Clear file input
+fileInput.value = '';
+        } else {
+          uploadResult.innerHTML = `<div class="alert alert-danger" role="alert">${data.message}</div>`;
+        }
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        uploadResult.innerHTML = '<div class="alert alert-danger" role="alert">Error uploading files</div>';
+      }
+    });
+  </script>
+</body>
+
+</html>

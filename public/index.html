@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <title>Image Template</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      margin-top: 50px;
+    }
+
+    .loading-spinner {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .gallery-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .gallery-item {
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative; /* Added position relative for proper placement of download button */
+    }
+
+    .gallery-item img {
+      width: 100%;
+    }
+
+    .download-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #007bff;
+      color: #fff;
+      padding: 5px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/">Image Template</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="/upload">Upload <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="loading-spinner text-center">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <div class="gallery-container mt-4" id="imageGallery">
+      <!-- Images will be dynamically added here -->
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script>
+    // Function to fetch and display images
+    async function fetchImages() {
+      const imageGallery = document.getElementById('imageGallery');
+      const loadingSpinner = document.querySelector('.loading-spinner');
+
+      // Display loading spinner
+      loadingSpinner.style.display = 'block';
+
+      try {
+        const response = await fetch('/getImages');
+        const data = await response.json();
+
+        // Hide loading spinner
+        loadingSpinner.style.display = 'none';
+
+        // Clear existing images
+        imageGallery.innerHTML = '';
+
+        // Populate the gallery with images
+        data.images.forEach((imageUrl, index) => {
+          const galleryItem = document.createElement('div');
+          galleryItem.classList.add('gallery-item');
+
+          const image = document.createElement('img');
+          image.src = imageUrl;
+          image.alt = `Image ${index + 1}`;
+
+          const downloadButton = document.createElement('button');
+          downloadButton.innerText = 'Download';
+          downloadButton.classList.add('download-button');
+
+          galleryItem.appendChild(image);
+          galleryItem.appendChild(downloadButton);
+
+          // Show download button on image hover
+          galleryItem.addEventListener('mouseenter', () => {
+            downloadButton.style.display = 'block';
+          });
+
+          // Hide download button when not hovering
+          galleryItem.addEventListener('mouseleave', () => {
+            downloadButton.style.display = 'none';
+          });
+
+          // Add an event listener to the download button
+          downloadButton.addEventListener('click', () => {
+            // Create a temporary anchor element
+            const downloadLink = document.createElement('a');
+            downloadLink.href = imageUrl;
+            downloadLink.download = `image_${index + 1}`; // Set a default name for the downloaded file
+            document.body.appendChild(downloadLink);
+
+            // Trigger a click on the anchor element to start the download
+            downloadLink.click();
+
+            // Remove the temporary anchor element from the document
+            document.body.removeChild(downloadLink);
+          });
+
+          imageGallery.appendChild(galleryItem);
+        });
+      } catch (error) {
+        console.error('Error fetching images:', error);
+
+        // Hide loading spinner
+        loadingSpinner.style.display = 'none';
+      }
+    }
+
+    // Initial fetch of images
+    fetchImages();
+  </script>
+</body>
+
+</html>
