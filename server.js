@@ -39,6 +39,11 @@ app.get('/about', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 
+// Handle the privacy-policy route
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+});
+
 // Handle the upload route with authentication middleware
 app.post('/upload', upload.array('file', 10), async (req, res) => {
   try {
