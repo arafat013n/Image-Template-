@@ -40,8 +40,8 @@ app.get('/about', (req, res) => {
 });
 
 // Handle the privacy-policy route
-app.get('/privacy-policy', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+app.get('/privacyPolicy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacyPolicy.html'));
 });
 
 // Handle the upload route with authentication middleware
